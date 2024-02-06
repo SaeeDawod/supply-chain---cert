@@ -1,0 +1,502 @@
+[
+    {
+        "id": "1b72e8d575aef462",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "e3b44a00473f3b30",
+        "type": "function",
+        "z": "1b72e8d575aef462",
+        "name": "Create Lot",
+        "func": "const coffeeContract = global.get(\"coffeeContract\");\n\n//Get number of lots to generate the next incremental loot id \nasync function fetchGraphQL(query, variables = {}) {\n    const response = await fetch('https://supply-chain-gmw-e6ba.gke-europe.settlemint.com/subgraphs/name/supply-chain-scs-c3dc', {\n        method: 'POST',\n        headers: {\n            'Content-Type': 'application/json',\n            'x-auth-token': 'sm_pat_518100010642a707'\n        },\n        body: JSON.stringify({ query, variables }),\n    });\n    const responseBody = await response.json();\n    return responseBody.data;\n}\n\nasync function fetchCurrentLotCount() {\n    const query = `\n    query MyQuery {\n        lots {\n            id\n        }\n    }`;\n    const response = await fetchGraphQL(query);\n    return response.lots.length; // Returns the count of current lots\n}\n\nconst lotCount = await fetchCurrentLotCount();\nconst newLotId = String(lotCount + 1) // Increments the lot count for the new ID\nglobal.set(\"currentLotID\", newLotId); //set it as a global variable \nconst tx = await coffeeContract.createLot('Arabica', '1000kg', 'Farmer Joe', 'Brazilian Farm', newLotId, 'TransCo');\n\nmsg.payload = await tx.hash\n\nreturn msg\n\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "ethers",
+                "module": "ethers"
+            },
+            {
+                "var": "fetch",
+                "module": "node-fetch"
+            }
+        ],
+        "x": 390,
+        "y": 160,
+        "wires": [
+            [
+                "c340272835ef1569"
+            ]
+        ]
+    },
+    {
+        "id": "3a0389d58019b54c",
+        "type": "inject",
+        "z": "1b72e8d575aef462",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 160,
+        "wires": [
+            [
+                "e3b44a00473f3b30"
+            ]
+        ]
+    },
+    {
+        "id": "c340272835ef1569",
+        "type": "debug",
+        "z": "1b72e8d575aef462",
+        "name": "Create ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 630,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "95110b4e220d9527",
+        "type": "inject",
+        "z": "1b72e8d575aef462",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 280,
+        "wires": [
+            [
+                "91575ef8d95f844f"
+            ]
+        ]
+    },
+    {
+        "id": "91575ef8d95f844f",
+        "type": "function",
+        "z": "1b72e8d575aef462",
+        "name": "Coffee Cherries Processing (First Process )",
+        "func": "const coffeeContract = global.get(\"coffeeContract\");\n\nconst lotId = global.get(\"currentLotID\");\nconst tx = await coffeeContract.registerFirstProcess(lotId, 'Processor Amy', 'Machine 5', 'Washing Station A', '2024-01-15');\n\nmsg.payload = await tx.hash;\n\n\nreturn msg\n\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "ethers",
+                "module": "ethers"
+            }
+        ],
+        "x": 490,
+        "y": 280,
+        "wires": [
+            [
+                "460c95c6fa6450f1"
+            ]
+        ]
+    },
+    {
+        "id": "460c95c6fa6450f1",
+        "type": "debug",
+        "z": "1b72e8d575aef462",
+        "name": "First process",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 770,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "178d00af901961e5",
+        "type": "inject",
+        "z": "1b72e8d575aef462",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 500,
+        "wires": [
+            [
+                "df7ad6d590569a88"
+            ]
+        ]
+    },
+    {
+        "id": "df7ad6d590569a88",
+        "type": "function",
+        "z": "1b72e8d575aef462",
+        "name": "Packing",
+        "func": "const coffeeContract = global.get(\"coffeeContract\");\n\n\nconst lotId = global.get(\"currentLotID\")\nconst secProc = 'secProc'+lotId\nconst tx = await coffeeContract.packing(secProc, 'Packer Carla', lotId, '950kg', 'Vacuum Sealed');\nmsg.payload = tx.hash\n\nreturn msg ",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 500,
+        "wires": [
+            [
+                "1c0b85d9930b674e"
+            ]
+        ]
+    },
+    {
+        "id": "1c0b85d9930b674e",
+        "type": "debug",
+        "z": "1b72e8d575aef462",
+        "name": "Packing",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 740,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "3aa99604ae31fc75",
+        "type": "inject",
+        "z": "1b72e8d575aef462",
+        "name": "set global vars",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 170,
+        "y": 40,
+        "wires": [
+            [
+                "073ec159cc87c0a2"
+            ]
+        ]
+    },
+    {
+        "id": "073ec159cc87c0a2",
+        "type": "function",
+        "z": "1b72e8d575aef462",
+        "name": "Set global vars",
+        "func": "const abi = [\n    \"function createLot(string lotType, string quantity, string operatorId, string originId, string lotNo, string transporterId)\",\n    \"function registerFirstProcess(string lotNos, string operatorId, string machineId, string processingHouseId, string timestamp)\",\n    \"function registerSecondProcess(string firstProcessLotIds, string machineId, string operatorId, string secondProcessOutputLotId)\",\n    \"function packing(string secondProcessLotId, string operatorId, string packageId, string weight, string packagingType)\",\n    \"function transport(string packageId, string operatorId, string transporterId, string cartonId)\",\n    // Include other function and event signatures as needed\n]\n\nconst provider = new ethers.JsonRpcProvider('https://besu-node-1-d5f7.gke-europe.settlemint.com/sm_sat_b940a4796a9eb1b1');\nconst signer = new ethers.Wallet('0xcfb7350892931fe8a912631ece54a56768bf5a60a5e339f82eb6402888f351b4', provider);\nconst coffeeContract = new ethers.Contract('0xA42fa8e512Ef477e6c90623f7beca5622530A74B', abi, signer);\n\nglobal.set('coffeeContract', coffeeContract)\n\n\n\nmsg.payload = coffeeContract.target\n\nreturn msg ",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "ethers",
+                "module": "ethers"
+            }
+        ],
+        "x": 420,
+        "y": 40,
+        "wires": [
+            [
+                "fa4150408d41560a"
+            ]
+        ]
+    },
+    {
+        "id": "fa4150408d41560a",
+        "type": "debug",
+        "z": "1b72e8d575aef462",
+        "name": "Global vars",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 670,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "90a29909579bdb59",
+        "type": "inject",
+        "z": "1b72e8d575aef462",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 380,
+        "wires": [
+            [
+                "7eb0314679ccdbc8"
+            ]
+        ]
+    },
+    {
+        "id": "7eb0314679ccdbc8",
+        "type": "function",
+        "z": "1b72e8d575aef462",
+        "name": "Coffe Beans Finishing (second process )",
+        "func": "const coffeeContract = global.get(\"coffeeContract\");\n\nconst lotId = global.get(\"currentLotID\");\nconst secProc = `secProc${lotId}`\nconst tx = await coffeeContract.registerSecondProcess(lotId, 'Machine 8', 'Processor Bob', secProc);\n\nmsg.payload = await tx.hash;\n\nreturn msg\n\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "ethers",
+                "module": "ethers"
+            }
+        ],
+        "x": 480,
+        "y": 380,
+        "wires": [
+            [
+                "e08f624d3c80994b"
+            ]
+        ]
+    },
+    {
+        "id": "e08f624d3c80994b",
+        "type": "debug",
+        "z": "1b72e8d575aef462",
+        "name": "Second process",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 780,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "59271f96aee2cc35",
+        "type": "inject",
+        "z": "1b72e8d575aef462",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 580,
+        "wires": [
+            [
+                "e8d5276731677501"
+            ]
+        ]
+    },
+    {
+        "id": "e8d5276731677501",
+        "type": "function",
+        "z": "1b72e8d575aef462",
+        "name": "Transport ",
+        "func": "const coffeeContract = global.get(\"coffeeContract\");\n\nconst lotId = global.get(\"currentLotID\");\nconst pack = 'pack'+lotId\nconst tx = await coffeeContract.transport(pack, 'Transporter Dave', 'TransCo', 'Carton002');\n// \"function transport(string packageId, string operatorId, string transporterId, string cartonId)\",\n\nmsg.payload = tx.hash\n\nreturn msg ",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 580,
+        "wires": [
+            [
+                "36d1d519f2a1f2d8"
+            ]
+        ]
+    },
+    {
+        "id": "36d1d519f2a1f2d8",
+        "type": "debug",
+        "z": "1b72e8d575aef462",
+        "name": "Transport",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 700,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "0f5bd08e29c6ba30",
+        "type": "function",
+        "z": "1b72e8d575aef462",
+        "name": "get Items supply chain",
+        "func": "const graphqlEndpoint = 'https://supply-chain-gmw-e6ba.gke-europe.settlemint.com/subgraphs/name/supply-chain-scs-c3dc';\nconst lotId = \"10\";\n\nasync function fetchGraphQL(query, variables = {}) {\n    const response = await fetch(graphqlEndpoint, {\n        method: 'POST',\n        headers: {\n            'Content-Type': 'application/json',\n            'x-auth-token': 'sm_pat_518100010642a707'\n        },\n        body: JSON.stringify({ query, variables }),\n    });\n    const responseBody = await response.json();\n    return responseBody.data;\n}\n\nasync function getSupplyChain(lotId) {\n    const supplyChain = [];\n    try {\n        // Combined Query\n        const combinedQuery = `\n                query GetFullTrackOfLot($lotId: ID!) {\n                    lot(id: ${lotId}) {\n                        id\n                        lotType\n                        quantity\n                        operatorId\n                        originId\n                        transporterId\n                        lotNo\n                    }\n                    firstProcesses(where: {lotNos: $lotId}) {\n                        firstProcessLotId\n                        lotNos\n                        operatorId\n                        machineId\n                        processingHouseId\n                    }\n                    secondProcesses(where: {firstProcessLotIds: $lotId}) {\n                        secondProcessLotId\n                        firstProcessLotIds\n                        machineId\n                        operatorId\n                    }\n                    packings(where: {id: $lotId}) {\n                        id\n                        operatorId\n                        packageId\n                        packagingType\n                        packingLotId\n                        secondProcessLotId\n                    }\n                    transports(where: {transportLotId: $lotId}) {\n                        cartonId\n                        id\n                        operatorId\n                        packageId\n                        transportLotId\n                        transporterId\n                    }\n                }`;\n        const supplyChainData = await fetchGraphQL(combinedQuery, { lotId });\n        return supplyChainData\n    } catch (error) {\n        console.error('Error fetching data:', error);\n        return error\n    }\n}\n\n// const getChain = getSupplyChain(\"10\")\n\nmsg.payload = await getSupplyChain(`${msg.lotId}`)\nreturn msg\n\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "fetch",
+                "module": "node-fetch"
+            }
+        ],
+        "x": 420,
+        "y": 800,
+        "wires": [
+            [
+                "252034bbfa0f9d99"
+            ]
+        ]
+    },
+    {
+        "id": "e0186881c1bd5626",
+        "type": "inject",
+        "z": "1b72e8d575aef462",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "lotId",
+                "v": "10",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 800,
+        "wires": [
+            [
+                "0f5bd08e29c6ba30"
+            ]
+        ]
+    },
+    {
+        "id": "252034bbfa0f9d99",
+        "type": "debug",
+        "z": "1b72e8d575aef462",
+        "name": "lot history",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 800,
+        "wires": []
+    }
+]
